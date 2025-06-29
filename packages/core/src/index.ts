@@ -9,7 +9,7 @@ export * from './config/config.js';
 
 // Export Eidolon Core Architecture
 export * from './inference/index.js';
-export * from './data-oasis/index.js';
+export { DataOasis, FileDataOasis, LogFilter, LogEntry as DataOasisLogEntry } from './data-oasis/index.js';
 export * from './orchestrator.js';
 
 // Export Core Logic
