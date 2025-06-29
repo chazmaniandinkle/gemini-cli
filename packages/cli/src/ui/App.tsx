@@ -415,6 +415,7 @@ const App = ({ config, settings, orchestrator, startupWarnings = [] }: AppProps)
     history,
     addItem,
     setShowHelp,
+    config,
   );
   pendingHistoryItems.push(...pendingGeminiHistoryItems);
   const { elapsedTime, currentLoadingPhrase } =

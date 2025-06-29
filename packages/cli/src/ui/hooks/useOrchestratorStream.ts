@@ -1,42 +1,79 @@
 import { useState, useCallback } from 'react';
-import { Orchestrator, OrchestratorRequest } from '@google-gemini/core';
-import { StreamingState, HistoryItem, MessageType } from '../types.js';
+import {
+  Orchestrator,
+  OrchestratorRequest,
+  getErrorMessage,
+} from '@google-gemini/core';
+import { Config } from '@google/gemini-cli-core';
+import {
+  StreamingState,
+  MessageType,
+  HistoryItemWithoutId,
+  HistoryItem,
+} from '../types.js';
+import { UseHistoryManagerReturn } from './useHistoryManager.js';
 
 export const useOrchestratorStream = (
   orchestrator: Orchestrator,
-  _history: HistoryItem[],
-  addItem: (item: HistoryItem, timestamp: number) => void,
+  _history: HistoryItem[], // kept for API consistency
+  addItem: UseHistoryManagerReturn['addItem'],
   setShowHelp: React.Dispatch<React.SetStateAction<boolean>>,
+  config: Config,
 ) => {
-  const [streamingState, setStreamingState] = useState<StreamingState>(StreamingState.Idle);
+  const [streamingState, setStreamingState] = useState<StreamingState>(
+    StreamingState.Idle,
+  );
   const [initError, setInitError] = useState<string | null>(null);
+  const [pendingHistoryItems, setPendingHistoryItems] = useState<
+    HistoryItemWithoutId[]
+  >([]);
+  const thought = null;
 
-  const submitQuery = useCallback(async (prompt: string) => {
-    setShowHelp(false);
-    setStreamingState(StreamingState.Responding);
-    const timestamp = Date.now();
-    try {
-      const request: OrchestratorRequest = { prompt };
-      const stream = orchestrator.executeStream(request);
-      let buffer = '';
-      for await (const chunk of stream) {
-        buffer += chunk.content;
-        addItem({ type: 'gemini', text: buffer }, timestamp);
+  const submitQuery = useCallback(
+    async (prompt: string) => {
+      const trimmed = prompt.trim();
+      if (!trimmed) {
+        return;
       }
-    } catch (e) {
-      const msg = (e as Error).message;
-      setInitError(msg);
-      addItem({ type: MessageType.ERROR, text: msg }, timestamp);
-    } finally {
-      setStreamingState(StreamingState.Idle);
-    }
-  }, [orchestrator, addItem, setShowHelp]);
+      setShowHelp(false);
+      const userMessageTimestamp = Date.now();
+      // Add the user prompt immediately
+      addItem({ type: MessageType.USER, text: trimmed }, userMessageTimestamp);
+      setStreamingState(StreamingState.Responding);
+
+      try {
+        const request: OrchestratorRequest = {
+          prompt: trimmed,
+          sessionId: config.getSessionId(),
+        };
+
+        let buffer = '';
+        const stream = await orchestrator.executeStream(request);
+        for await (const chunk of stream) {
+          buffer += chunk.content;
+          setPendingHistoryItems([{ type: MessageType.GEMINI, text: buffer }]);
+        }
+
+        if (buffer) {
+          addItem({ type: MessageType.GEMINI, text: buffer }, Date.now());
+        }
+      } catch (error) {
+        const msg = getErrorMessage(error);
+        setInitError(msg);
+        addItem({ type: MessageType.ERROR, text: msg }, Date.now());
+      } finally {
+        setStreamingState(StreamingState.Idle);
+        setPendingHistoryItems([]);
+      }
+    },
+    [orchestrator, config, addItem, setShowHelp],
+  );
 
   return {
     streamingState,
     submitQuery,
     initError,
-    pendingHistoryItems: [],
-    thought: null,
+    pendingHistoryItems,
+    thought,
   };
 };
