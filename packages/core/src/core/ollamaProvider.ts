@@ -64,7 +64,7 @@ export class OllamaProvider implements InferenceProvider {
     request: GenerateContentParameters,
   ): Promise<AsyncGenerator<GenerateContentResponse>> {
     const prompt = this.extractPromptFromRequest(request);
-    
+
     const response = await fetch(`${this.baseUrl}/api/generate`, {
       method: 'POST',
       headers: {
@@ -177,13 +177,35 @@ export class OllamaProvider implements InferenceProvider {
     return data.models.map((model: { name: string }) => model.name);
   }
 
-  private extractPromptFromRequest(request: GenerateContentParameters | CountTokensParameters | EmbedContentParameters): string {
+  private extractPromptFromRequest(
+    request:
+      | GenerateContentParameters
+      | CountTokensParameters
+      | EmbedContentParameters,
+  ): string {
     // Extract text from the request structure
-    if ('contents' in request && request.contents && Array.isArray(request.contents) && request.contents.length > 0) {
+    if (
+      'contents' in request &&
+      request.contents &&
+      Array.isArray(request.contents) &&
+      request.contents.length > 0
+    ) {
       const content = request.contents[0];
-      if (content && typeof content === 'object' && 'parts' in content && content.parts && Array.isArray(content.parts) && content.parts.length > 0) {
+      if (
+        content &&
+        typeof content === 'object' &&
+        'parts' in content &&
+        content.parts &&
+        Array.isArray(content.parts) &&
+        content.parts.length > 0
+      ) {
         const part = content.parts[0];
-        if (part && typeof part === 'object' && 'text' in part && typeof part.text === 'string') {
+        if (
+          part &&
+          typeof part === 'object' &&
+          'text' in part &&
+          typeof part.text === 'string'
+        ) {
           return part.text;
         }
       }

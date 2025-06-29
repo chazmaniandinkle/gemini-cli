@@ -38,19 +38,27 @@ export class GoogleAIProvider implements InferenceProvider {
     });
   }
 
-  async generateContent(request: GenerateContentParameters): Promise<GenerateContentResponse> {
+  async generateContent(
+    request: GenerateContentParameters,
+  ): Promise<GenerateContentResponse> {
     return this.googleGenAI.models.generateContent(request);
   }
 
-  async generateContentStream(request: GenerateContentParameters): Promise<AsyncGenerator<GenerateContentResponse>> {
+  async generateContentStream(
+    request: GenerateContentParameters,
+  ): Promise<AsyncGenerator<GenerateContentResponse>> {
     return this.googleGenAI.models.generateContentStream(request);
   }
 
-  async countTokens(request: CountTokensParameters): Promise<CountTokensResponse> {
+  async countTokens(
+    request: CountTokensParameters,
+  ): Promise<CountTokensResponse> {
     return this.googleGenAI.models.countTokens(request);
   }
 
-  async embedContent(request: EmbedContentParameters): Promise<EmbedContentResponse> {
+  async embedContent(
+    request: EmbedContentParameters,
+  ): Promise<EmbedContentResponse> {
     return this.googleGenAI.models.embedContent(request);
   }
 

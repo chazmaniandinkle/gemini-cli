@@ -23,14 +23,18 @@ export interface InferenceProvider {
    * @param request The content generation request, formatted according to the Google AI SDK.
    * @returns A promise that resolves with an async generator of content responses.
    */
-  generateContentStream(request: GenerateContentParameters): Promise<AsyncGenerator<GenerateContentResponse>>;
+  generateContentStream(
+    request: GenerateContentParameters,
+  ): Promise<AsyncGenerator<GenerateContentResponse>>;
 
   /**
    * Makes a request to the provider to generate content and returns a single response.
    * @param request The content generation request, formatted according to the Google AI SDK.
    * @returns A promise that resolves with a single content response.
    */
-  generateContent(request: GenerateContentParameters): Promise<GenerateContentResponse>;
+  generateContent(
+    request: GenerateContentParameters,
+  ): Promise<GenerateContentResponse>;
 
   /**
    * Counts the tokens in the given request.

@@ -15,7 +15,9 @@ describe('AuthDialog', () => {
 
   const mockConfig = {
     getModel: vi.fn().mockReturnValue('gemini-1.5-pro'),
-    getAvailableModels: vi.fn().mockReturnValue(['gemini-1.5-pro', 'gemini-1.5-flash']),
+    getAvailableModels: vi
+      .fn()
+      .mockReturnValue(['gemini-1.5-pro', 'gemini-1.5-flash']),
   } as unknown as Config;
 
   it('should show an error if the initial auth type is invalid', () => {

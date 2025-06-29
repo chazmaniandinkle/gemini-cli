@@ -77,7 +77,9 @@ describe('GeminiChat', () => {
         ],
         text: () => 'response',
       } as unknown as GenerateContentResponse;
-      vi.mocked(mockInferenceProvider.generateContent).mockResolvedValue(response);
+      vi.mocked(mockInferenceProvider.generateContent).mockResolvedValue(
+        response,
+      );
 
       await chat.sendMessage({ message: 'hello' });
 

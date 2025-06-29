@@ -32,4 +32,4 @@ To connect the CLI to it:
 
 3.  **Start the CLI:** The next time you run the CLI, it will automatically connect to your server. You can verify that the tools are available by using the `/mcp` command.
 
-*Note: The `.gemini` directory is ignored by git, so your local server configurations will not be committed to the repository.*
+_Note: The `.gemini` directory is ignored by git, so your local server configurations will not be committed to the repository._
