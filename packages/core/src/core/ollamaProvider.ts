@@ -12,13 +12,10 @@ import {
   EmbedContentResponse,
   EmbedContentParameters,
 } from '@google/genai';
-import {
-  ContentGenerator,
-  ContentGeneratorConfig,
-} from './contentGenerator.js';
+import { ContentGeneratorConfig } from './contentGenerator.js';
 import { InferenceProvider } from './inferenceProvider.js';
 
-export class OllamaApiProvider implements ContentGenerator, InferenceProvider {
+export class OllamaProvider implements InferenceProvider {
   private readonly baseUrl: string;
   private readonly model: string;
 

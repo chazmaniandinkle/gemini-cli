@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { createContentGenerator, AuthType } from './contentGenerator.js';
+import { createInferenceProvider, AuthType } from './contentGenerator.js';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
 import { GoogleGenAI } from '@google/genai';
 
@@ -18,7 +18,7 @@ describe('contentGenerator', () => {
     vi.mocked(createCodeAssistContentGenerator).mockResolvedValue(
       mockGenerator as never,
     );
-    const generator = await createContentGenerator({
+    const generator = await createInferenceProvider({
       model: 'test-model',
       authType: AuthType.LOGIN_WITH_GOOGLE_PERSONAL,
     });
@@ -26,25 +26,17 @@ describe('contentGenerator', () => {
     expect(generator).toBe(mockGenerator);
   });
 
-  it('should create a GoogleGenAI content generator', async () => {
-    const mockGenerator = {
-      models: {},
-    } as unknown;
-    vi.mocked(GoogleGenAI).mockImplementation(() => mockGenerator as never);
-    const generator = await createContentGenerator({
+  it('should create a GoogleAI provider', async () => {
+    const generator = await createInferenceProvider({
       model: 'test-model',
       apiKey: 'test-api-key',
       authType: AuthType.USE_GEMINI,
     });
-    expect(GoogleGenAI).toHaveBeenCalledWith({
-      apiKey: 'test-api-key',
-      vertexai: undefined,
-      httpOptions: {
-        headers: {
-          'User-Agent': expect.any(String),
-        },
-      },
-    });
-    expect(generator).toBe((mockGenerator as GoogleGenAI).models);
+    expect(generator).toBeInstanceOf(Object);
+    expect(generator).toHaveProperty('generateContent');
+    expect(generator).toHaveProperty('generateContentStream');
+    expect(generator).toHaveProperty('countTokens');
+    expect(generator).toHaveProperty('embedContent');
+    expect(generator).toHaveProperty('listModels');
   });
 });

@@ -7,7 +7,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   Content,
-  Models,
   GenerateContentConfig,
   Part,
   GenerateContentResponse,
@@ -15,16 +14,17 @@ import {
 import { GeminiChat } from './geminiChat.js';
 import { Config } from '../config/config.js';
 import { AuthType } from '../core/contentGenerator.js';
+import { InferenceProvider } from './inferenceProvider.js';
 import { setSimulate429 } from '../utils/testUtils.js';
 
 // Mocks
-const mockModelsModule = {
+const mockInferenceProvider = {
   generateContent: vi.fn(),
   generateContentStream: vi.fn(),
   countTokens: vi.fn(),
   embedContent: vi.fn(),
-  batchEmbedContents: vi.fn(),
-} as unknown as Models;
+  listModels: vi.fn(),
+} as unknown as InferenceProvider;
 
 describe('GeminiChat', () => {
   let chat: GeminiChat;
@@ -53,7 +53,7 @@ describe('GeminiChat', () => {
     // Disable 429 simulation for tests
     setSimulate429(false);
     // Reset history for each test by creating a new instance
-    chat = new GeminiChat(mockConfig, mockModelsModule, config, []);
+    chat = new GeminiChat(mockConfig, mockInferenceProvider, config, []);
   });
 
   afterEach(() => {
@@ -77,11 +77,11 @@ describe('GeminiChat', () => {
         ],
         text: () => 'response',
       } as unknown as GenerateContentResponse;
-      vi.mocked(mockModelsModule.generateContent).mockResolvedValue(response);
+      vi.mocked(mockInferenceProvider.generateContent).mockResolvedValue(response);
 
       await chat.sendMessage({ message: 'hello' });
 
-      expect(mockModelsModule.generateContent).toHaveBeenCalledWith({
+      expect(mockInferenceProvider.generateContent).toHaveBeenCalledWith({
         model: 'gemini-pro',
         contents: [{ role: 'user', parts: [{ text: 'hello' }] }],
         config: {},
@@ -107,13 +107,13 @@ describe('GeminiChat', () => {
           text: () => 'response',
         } as unknown as GenerateContentResponse;
       })();
-      vi.mocked(mockModelsModule.generateContentStream).mockResolvedValue(
+      vi.mocked(mockInferenceProvider.generateContentStream).mockResolvedValue(
         response,
       );
 
       await chat.sendMessageStream({ message: 'hello' });
 
-      expect(mockModelsModule.generateContentStream).toHaveBeenCalledWith({
+      expect(mockInferenceProvider.generateContentStream).toHaveBeenCalledWith({
         model: 'gemini-2.5-pro',
         contents: [{ role: 'user', parts: [{ text: 'hello' }] }],
         config: {},
@@ -209,7 +209,7 @@ describe('GeminiChat', () => {
       chat.recordHistory(userInput, newModelOutput); // userInput here is for the *next* turn, but history is already primed
 
       // Reset and set up a more realistic scenario for merging with existing history
-      chat = new GeminiChat(mockConfig, mockModelsModule, config, []);
+      chat = new GeminiChat(mockConfig, mockInferenceProvider, config, []);
       const firstUserInput: Content = {
         role: 'user',
         parts: [{ text: 'First user input' }],
@@ -252,7 +252,7 @@ describe('GeminiChat', () => {
         role: 'model',
         parts: [{ text: 'Initial model answer.' }],
       };
-      chat = new GeminiChat(mockConfig, mockModelsModule, config, [
+      chat = new GeminiChat(mockConfig, mockInferenceProvider, config, [
         initialUser,
         initialModel,
       ]);

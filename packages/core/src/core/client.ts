@@ -32,10 +32,10 @@ import { retryWithBackoff } from '../utils/retry.js';
 import { getErrorMessage } from '../utils/errors.js';
 import { tokenLimit } from './tokenLimits.js';
 import {
-  ContentGenerator,
   ContentGeneratorConfig,
-  createContentGenerator,
+  createInferenceProvider,
 } from './contentGenerator.js';
+import { InferenceProvider } from './inferenceProvider.js';
 import { ProxyAgent, setGlobalDispatcher } from 'undici';
 import { DEFAULT_GEMINI_FLASH_MODEL } from '../config/models.js';
 import { AuthType } from './contentGenerator.js';
@@ -47,7 +47,7 @@ function isThinkingSupported(model: string) {
 
 export class GeminiClient {
   private chat?: GeminiChat;
-  private contentGenerator?: ContentGenerator;
+  private contentGenerator?: InferenceProvider;
   private model: string;
   private embeddingModel: string;
   private generateContentConfig: GenerateContentConfig = {
@@ -66,12 +66,12 @@ export class GeminiClient {
   }
 
   async initialize(contentGeneratorConfig: ContentGeneratorConfig) {
-    this.contentGenerator = await createContentGenerator(
+    this.contentGenerator = await createInferenceProvider(
       contentGeneratorConfig,
     );
     this.chat = await this.startChat();
   }
-  private getContentGenerator(): ContentGenerator {
+  getContentGenerator(): InferenceProvider {
     if (!this.contentGenerator) {
       throw new Error('Content generator not initialized');
     }

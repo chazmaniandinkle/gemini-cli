@@ -18,7 +18,8 @@ import {
 } from '@google/genai';
 import { retryWithBackoff } from '../utils/retry.js';
 import { isFunctionResponse } from '../utils/messageInspectors.js';
-import { ContentGenerator, AuthType } from './contentGenerator.js';
+import { AuthType } from './contentGenerator.js';
+import { InferenceProvider } from './inferenceProvider.js';
 import { Config } from '../config/config.js';
 import {
   logApiRequest,
@@ -140,7 +141,7 @@ export class GeminiChat {
 
   constructor(
     private readonly config: Config,
-    private readonly contentGenerator: ContentGenerator,
+    private readonly contentGenerator: InferenceProvider,
     private readonly generationConfig: GenerateContentConfig = {},
     private history: Content[] = [],
   ) {

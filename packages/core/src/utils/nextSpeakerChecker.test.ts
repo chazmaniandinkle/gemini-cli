@@ -5,27 +5,28 @@
  */
 
 import { describe, it, expect, vi, beforeEach, Mock, afterEach } from 'vitest';
-import { Content, GoogleGenAI, Models } from '@google/genai';
+import { Content, GoogleGenAI } from '@google/genai';
 import { GeminiClient } from '../core/client.js';
 import { Config } from '../config/config.js';
 import { checkNextSpeaker, NextSpeakerResponse } from './nextSpeakerChecker.js';
 import { GeminiChat } from '../core/geminiChat.js';
+import { InferenceProvider } from '../core/inferenceProvider.js';
 
 // Mock GeminiClient and Config constructor
 vi.mock('../core/client.js');
 vi.mock('../config/config.js');
 
-// Define mocks for GoogleGenAI and Models instances that will be used across tests
-const mockModelsInstance = {
+// Define mocks for InferenceProvider instances that will be used across tests
+const mockInferenceProvider = {
   generateContent: vi.fn(),
   generateContentStream: vi.fn(),
   countTokens: vi.fn(),
   embedContent: vi.fn(),
-  batchEmbedContents: vi.fn(),
-} as unknown as Models;
+  listModels: vi.fn(),
+} as unknown as InferenceProvider;
 
 const mockGoogleGenAIInstance = {
-  getGenerativeModel: vi.fn().mockReturnValue(mockModelsInstance),
+  getGenerativeModel: vi.fn().mockReturnValue(mockInferenceProvider),
   // Add other methods of GoogleGenAI if they are directly used by GeminiChat constructor or its methods
 } as unknown as GoogleGenAI;
 
@@ -35,8 +36,8 @@ vi.mock('@google/genai', async () => {
   return {
     ...actualGenAI,
     GoogleGenAI: vi.fn(() => mockGoogleGenAIInstance), // Mock constructor to return the predefined instance
-    // If Models is instantiated directly in GeminiChat, mock its constructor too
-    // For now, assuming Models instance is obtained via getGenerativeModel
+    // If InferenceProvider is instantiated directly in GeminiChat, mock its constructor too
+    // For now, assuming InferenceProvider instance is obtained via getGenerativeModel
   };
 });
 
@@ -64,13 +65,13 @@ describe('checkNextSpeaker', () => {
     mockGeminiClient = new GeminiClient(mockConfigInstance);
 
     // Reset mocks before each test to ensure test isolation
-    vi.mocked(mockModelsInstance.generateContent).mockReset();
-    vi.mocked(mockModelsInstance.generateContentStream).mockReset();
+    vi.mocked(mockInferenceProvider.generateContent).mockReset();
+    vi.mocked(mockInferenceProvider.generateContentStream).mockReset();
 
     // GeminiChat will receive the mocked instances via the mocked GoogleGenAI constructor
     chatInstance = new GeminiChat(
       mockConfigInstance,
-      mockModelsInstance, // This is the instance returned by mockGoogleGenAIInstance.getGenerativeModel
+      mockInferenceProvider, // This is the instance returned by mockGoogleGenAIInstance.getGenerativeModel
       {},
       [], // initial history
     );

@@ -13,7 +13,8 @@ import {
   GoogleGenAI,
 } from '@google/genai';
 import { GeminiClient } from './client.js';
-import { AuthType, ContentGenerator } from './contentGenerator.js';
+import { AuthType } from './contentGenerator.js';
+import { InferenceProvider } from './inferenceProvider.js';
 import { GeminiChat } from './geminiChat.js';
 import { Config } from '../config/config.js';
 import { Turn } from './turn.js';
@@ -267,11 +268,11 @@ describe('Gemini Client (client.ts)', () => {
       const abortSignal = new AbortController().signal;
 
       // Mock countTokens
-      const mockGenerator: Partial<ContentGenerator> = {
+      const mockGenerator: Partial<InferenceProvider> = {
         countTokens: vi.fn().mockResolvedValue({ totalTokens: 1 }),
         generateContent: mockGenerateContentFn,
       };
-      client['contentGenerator'] = mockGenerator as ContentGenerator;
+      client['contentGenerator'] = mockGenerator as InferenceProvider;
 
       await client.generateContent(contents, generationConfig, abortSignal);
 
@@ -295,11 +296,11 @@ describe('Gemini Client (client.ts)', () => {
       const abortSignal = new AbortController().signal;
 
       // Mock countTokens
-      const mockGenerator: Partial<ContentGenerator> = {
+      const mockGenerator: Partial<InferenceProvider> = {
         countTokens: vi.fn().mockResolvedValue({ totalTokens: 1 }),
         generateContent: mockGenerateContentFn,
       };
-      client['contentGenerator'] = mockGenerator as ContentGenerator;
+      client['contentGenerator'] = mockGenerator as InferenceProvider;
 
       await client.generateJson(contents, schema, abortSignal);
 
@@ -378,10 +379,10 @@ describe('Gemini Client (client.ts)', () => {
       };
       client['chat'] = mockChat as GeminiChat;
 
-      const mockGenerator: Partial<ContentGenerator> = {
+      const mockGenerator: Partial<InferenceProvider> = {
         countTokens: vi.fn().mockResolvedValue({ totalTokens: 0 }),
       };
-      client['contentGenerator'] = mockGenerator as ContentGenerator;
+      client['contentGenerator'] = mockGenerator as InferenceProvider;
 
       // Act
       const stream = client.sendMessageStream(

@@ -8,10 +8,15 @@ import { render } from 'ink-testing-library';
 import { describe, it, expect, vi } from 'vitest';
 import { AuthDialog } from './AuthDialog.js';
 import { LoadedSettings, SettingScope } from '../../config/settings.js';
-import { AuthType } from '@google/gemini-cli-core';
+import { AuthType, Config } from '@google/gemini-cli-core';
 
 describe('AuthDialog', () => {
   const wait = (ms = 50) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const mockConfig = {
+    getModel: vi.fn().mockReturnValue('gemini-1.5-pro'),
+    getAvailableModels: vi.fn().mockReturnValue(['gemini-1.5-pro', 'gemini-1.5-flash']),
+  } as unknown as Config;
 
   it('should show an error if the initial auth type is invalid', () => {
     const settings: LoadedSettings = new LoadedSettings(
@@ -34,6 +39,7 @@ describe('AuthDialog', () => {
         onHighlight={() => {}}
         settings={settings}
         initialErrorMessage="GEMINI_API_KEY  environment variable not found"
+        config={mockConfig}
       />,
     );
 
@@ -63,6 +69,7 @@ describe('AuthDialog', () => {
         onSelect={onSelect}
         onHighlight={() => {}}
         settings={settings}
+        config={mockConfig}
       />,
     );
     await wait();
@@ -100,6 +107,7 @@ describe('AuthDialog', () => {
         onSelect={onSelect}
         onHighlight={() => {}}
         settings={settings}
+        config={mockConfig}
       />,
     );
     await wait();

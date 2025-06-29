@@ -14,31 +14,14 @@ import {
   GoogleGenAI,
 } from '@google/genai';
 import { createCodeAssistContentGenerator } from '../code_assist/codeAssist.js';
-import { OllamaApiProvider } from './ollamaContentGenerator.js';
-import { GoogleGenAIGenerator } from './googleGenAIGenerator.js';
-import { GeminiApiProvider } from './geminiApiProvider.js';
+import { OllamaProvider } from './ollamaProvider.js';
+import { GoogleAIProvider } from './googleAIProvider.js';
 import { InferenceProvider } from './inferenceProvider.js';
 import { DEFAULT_GEMINI_MODEL } from '../config/models.js';
 import { getEffectiveModel } from './modelCheck.js';
 
-/**
- * Interface abstracting the core functionalities for generating content and counting tokens.
- */
-export interface ContentGenerator {
-  generateContent(
-    request: GenerateContentParameters,
-  ): Promise<GenerateContentResponse>;
-
-  generateContentStream(
-    request: GenerateContentParameters,
-  ): Promise<AsyncGenerator<GenerateContentResponse>>;
-
-  countTokens(request: CountTokensParameters): Promise<CountTokensResponse>;
-
-  embedContent(request: EmbedContentParameters): Promise<EmbedContentResponse>;
-
-  listModels(): Promise<string[]>;
-}
+// ContentGenerator interface has been replaced by InferenceProvider
+// This file now only contains configuration types and factory functions
 
 export enum AuthType {
   LOGIN_WITH_GOOGLE_PERSONAL = 'oauth-personal',
@@ -127,14 +110,25 @@ export async function createInferenceProvider(
   config: ContentGeneratorConfig,
 ): Promise<InferenceProvider> {
   if (config.authType === AuthType.USE_OLLAMA) {
-    return new OllamaApiProvider(config);
+    return new OllamaProvider(config);
   }
 
   if (
     config.authType === AuthType.USE_GEMINI ||
     config.authType === AuthType.USE_VERTEX_AI
   ) {
-    return new GeminiApiProvider(config);
+    return new GoogleAIProvider(config);
+  }
+
+  if (config.authType === AuthType.LOGIN_WITH_GOOGLE_PERSONAL) {
+    // Code Assist uses a different pattern, keep the existing createCodeAssistContentGenerator
+    const version = process.env.CLI_VERSION || process.version;
+    const httpOptions = {
+      headers: {
+        'User-Agent': `GeminiCLI/${version} (${process.platform}; ${process.arch})`,
+      },
+    };
+    return createCodeAssistContentGenerator(httpOptions, config.authType);
   }
 
   throw new Error(
@@ -142,37 +136,4 @@ export async function createInferenceProvider(
   );
 }
 
-export async function createContentGenerator(
-  config: ContentGeneratorConfig,
-): Promise<ContentGenerator> {
-  const version = process.env.CLI_VERSION || process.version;
-  const httpOptions = {
-    headers: {
-      'User-Agent': `GeminiCLI/${version} (${process.platform}; ${process.arch})`,
-    },
-  };
-  if (config.authType === AuthType.LOGIN_WITH_GOOGLE_PERSONAL) {
-    return createCodeAssistContentGenerator(httpOptions, config.authType);
-  }
-
-  if (
-    config.authType === AuthType.USE_GEMINI ||
-    config.authType === AuthType.USE_VERTEX_AI
-  ) {
-    const googleGenAI = new GoogleGenAI({
-      apiKey: config.apiKey === '' ? undefined : config.apiKey,
-      vertexai: config.vertexai,
-      httpOptions,
-    });
-
-    return new GoogleGenAIGenerator(googleGenAI);
-  }
-
-  if (config.authType === AuthType.USE_OLLAMA) {
-    return new OllamaApiProvider(config);
-  }
-
-  throw new Error(
-    `Error creating contentGenerator: Unsupported authType: ${config.authType}`,
-  );
-}
+// Legacy createContentGenerator function has been replaced by createInferenceProvider

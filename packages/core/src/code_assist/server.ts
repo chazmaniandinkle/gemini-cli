@@ -20,7 +20,7 @@ import {
   EmbedContentParameters,
 } from '@google/genai';
 import * as readline from 'readline';
-import { ContentGenerator } from '../core/contentGenerator.js';
+import { InferenceProvider } from '../core/inferenceProvider.js';
 import {
   CaGenerateContentResponse,
   toGenerateContentRequest,
@@ -42,7 +42,7 @@ export const CODE_ASSIST_ENDPOINT =
   process.env.CODE_ASSIST_ENDPOINT ?? 'https://cloudcode-pa.googleapis.com';
 export const CODE_ASSIST_API_VERSION = 'v1internal';
 
-export class CodeAssistServer implements ContentGenerator {
+export class CodeAssistServer implements InferenceProvider {
   constructor(
     readonly auth: AuthClient,
     readonly projectId?: string,
@@ -168,5 +168,11 @@ export class CodeAssistServer implements ContentGenerator {
         }
       }
     })();
+  }
+
+  async listModels(): Promise<string[]> {
+    // Code Assist doesn't expose a models list endpoint
+    // Return a default model list based on what's typically available
+    return ['gemini-1.5-pro', 'gemini-1.5-flash'];
   }
 }

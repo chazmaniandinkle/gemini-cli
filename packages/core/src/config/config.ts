@@ -211,7 +211,6 @@ export class Config {
     this.model = params.model;
     this.extensionContextFilePaths = params.extensionContextFilePaths ?? [];
     this.ollamaBaseUrl = params.ollamaBaseUrl;
-    this.ollamaBaseUrl = params.ollamaBaseUrl;
 
     if (params.contextFileName) {
       setGeminiMdFilename(params.contextFileName);
