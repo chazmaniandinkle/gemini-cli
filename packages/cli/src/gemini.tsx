@@ -6,6 +6,7 @@
 
 import React from 'react';
 import { render } from 'ink';
+import { Orchestrator, GeminiCore, FileDataOasis } from '@google/gemini-cli-core';
 import { AppWrapper } from './ui/App.js';
 import { loadCliConfig } from './config/config.js';
 import { readStdin } from './utils/readStdin.js';
@@ -101,6 +102,11 @@ export async function main() {
   const extensions = loadExtensions(workspaceRoot);
   const config = await loadCliConfig(settings.merged, extensions, sessionId);
 
+  const dataOasis = new FileDataOasis();
+  await dataOasis.initialize();
+  const geminiCore = new GeminiCore({ apiKey: process.env.GEMINI_API_KEY || '' });
+  const orchestrator = new Orchestrator({ inferenceCore: geminiCore, dataOasis });
+
   // set default fallback to gemini api key
   // this has to go after load cli because thats where the env is set
   if (!settings.merged.selectedAuthType && process.env.GEMINI_API_KEY) {
@@ -174,6 +180,7 @@ export async function main() {
         <AppWrapper
           config={config}
           settings={settings}
+          orchestrator={orchestrator}
           startupWarnings={startupWarnings}
         />
       </React.StrictMode>,
@@ -205,7 +212,7 @@ export async function main() {
     settings,
   );
 
-  await runNonInteractive(nonInteractiveConfig, input);
+  await runNonInteractive(orchestrator, nonInteractiveConfig, input);
   process.exit(0);
 }
 

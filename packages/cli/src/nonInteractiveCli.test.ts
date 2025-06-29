@@ -80,7 +80,7 @@ describe('runNonInteractive', () => {
     })();
     mockChat.sendMessageStream.mockResolvedValue(inputStream);
 
-    await runNonInteractive(mockConfig, 'Test input');
+    await runNonInteractive({} as any, mockConfig, 'Test input');
 
     expect(mockChat.sendMessageStream).toHaveBeenCalledWith({
       message: [{ text: 'Test input' }],
@@ -130,7 +130,7 @@ describe('runNonInteractive', () => {
       .mockResolvedValueOnce(stream1)
       .mockResolvedValueOnce(stream2);
 
-    await runNonInteractive(mockConfig, 'Use a tool');
+    await runNonInteractive({} as any, mockConfig, 'Use a tool');
 
     expect(mockChat.sendMessageStream).toHaveBeenCalledTimes(2);
     expect(mockCoreExecuteToolCall).toHaveBeenCalledWith(
@@ -189,7 +189,7 @@ describe('runNonInteractive', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    await runNonInteractive(mockConfig, 'Trigger tool error');
+    await runNonInteractive({} as any, mockConfig, 'Trigger tool error');
 
     expect(mockCoreExecuteToolCall).toHaveBeenCalled();
     expect(consoleErrorSpy).toHaveBeenCalledWith(
@@ -212,7 +212,7 @@ describe('runNonInteractive', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    await runNonInteractive(mockConfig, 'Initial fail');
+    await runNonInteractive({} as any, mockConfig, 'Initial fail');
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       '[API Error: API connection failed]',
@@ -264,7 +264,7 @@ describe('runNonInteractive', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    await runNonInteractive(mockConfig, 'Trigger tool not found');
+    await runNonInteractive({} as any, mockConfig, 'Trigger tool not found');
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Error executing tool nonExistentTool: Tool "nonExistentTool" not found in registry.',

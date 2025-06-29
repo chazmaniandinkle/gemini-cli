@@ -18,7 +18,7 @@ import {
 } from 'ink';
 import { StreamingState, type HistoryItem, MessageType } from './types.js';
 import { useTerminalSize } from './hooks/useTerminalSize.js';
-import { useGeminiStream } from './hooks/useGeminiStream.js';
+import { useOrchestratorStream } from './hooks/useOrchestratorStream.js';
 import { useLoadingIndicator } from './hooks/useLoadingIndicator.js';
 import { useThemeCommand } from './hooks/useThemeCommand.js';
 import { useAuthCommand } from './hooks/useAuthCommand.js';
@@ -54,6 +54,7 @@ import {
   ApprovalMode,
   isEditorAvailable,
   EditorType,
+  Orchestrator,
 } from '@google/gemini-cli-core';
 import { validateAuthMethod } from '../config/auth.js';
 import { useLogger } from './hooks/useLogger.js';
@@ -78,6 +79,7 @@ const CTRL_EXIT_PROMPT_DURATION_MS = 1000;
 interface AppProps {
   config: Config;
   settings: LoadedSettings;
+  orchestrator: Orchestrator;
   startupWarnings?: string[];
 }
 
@@ -87,7 +89,7 @@ export const AppWrapper = (props: AppProps) => (
   </SessionStatsProvider>
 );
 
-const App = ({ config, settings, startupWarnings = [] }: AppProps) => {
+const App = ({ config, settings, orchestrator, startupWarnings = [] }: AppProps) => {
   useBracketedPaste();
   const [updateMessage, setUpdateMessage] = useState<string | null>(null);
   const { stdout } = useStdout();
@@ -408,18 +410,12 @@ const App = ({ config, settings, startupWarnings = [] }: AppProps) => {
     initError,
     pendingHistoryItems: pendingGeminiHistoryItems,
     thought,
-  } = useGeminiStream(
-    config.getGeminiClient(),
+  } = useOrchestratorStream(
+    orchestrator,
     history,
     addItem,
     setShowHelp,
     config,
-    setDebugMessage,
-    handleSlashCommand,
-    shellModeActive,
-    getPreferredEditor,
-    onAuthError,
-    performMemoryRefresh,
   );
   pendingHistoryItems.push(...pendingGeminiHistoryItems);
   const { elapsedTime, currentLoadingPhrase } =
