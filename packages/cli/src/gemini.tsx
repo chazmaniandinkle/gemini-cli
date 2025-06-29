@@ -36,6 +36,7 @@ import {
 } from '@google/gemini-cli-core';
 import { validateAuthMethod } from './config/auth.js';
 import { setMaxSizedBoxDebugging } from './ui/components/shared/MaxSizedBox.js';
+import { Orchestrator, GeminiCore, FileDataOasis } from '@google-gemini/core';
 
 function getNodeMemoryArgs(config: Config): string[] {
   const totalMemoryMB = os.totalmem() / (1024 * 1024);
@@ -123,6 +124,19 @@ export async function main() {
     }
   }
 
+  const dataOasis = new FileDataOasis();
+  await dataOasis.initialize();
+  const contentCfg = config.getContentGeneratorConfig?.();
+  const geminiCore = new GeminiCore({
+    apiKey: contentCfg?.apiKey || process.env.GEMINI_API_KEY || '',
+    model: config.getModel(),
+    vertexai: contentCfg?.vertexai,
+  });
+  const orchestrator = new Orchestrator({
+    inferenceCore: geminiCore,
+    dataOasis,
+  });
+
   if (settings.merged.theme) {
     if (!themeManager.setActiveTheme(settings.merged.theme)) {
       // If the theme is not found during initial load, log a warning and continue.
@@ -174,6 +188,7 @@ export async function main() {
         <AppWrapper
           config={config}
           settings={settings}
+          orchestrator={orchestrator}
           startupWarnings={startupWarnings}
         />
       </React.StrictMode>,
@@ -199,13 +214,8 @@ export async function main() {
   });
 
   // Non-interactive mode handled by runNonInteractive
-  const nonInteractiveConfig = await loadNonInteractiveConfig(
-    config,
-    extensions,
-    settings,
-  );
-
-  await runNonInteractive(nonInteractiveConfig, input);
+  await loadNonInteractiveConfig(config, extensions, settings);
+  await runNonInteractive(orchestrator, input);
   process.exit(0);
 }
 

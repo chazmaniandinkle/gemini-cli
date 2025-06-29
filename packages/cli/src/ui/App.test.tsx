@@ -138,8 +138,8 @@ vi.mock('@google/gemini-cli-core', async (importOriginal) => {
 });
 
 // Mock heavy dependencies or those with side effects
-vi.mock('./hooks/useGeminiStream', () => ({
-  useGeminiStream: vi.fn(() => ({
+vi.mock('./hooks/useOrchestratorStream', () => ({
+  useOrchestratorStream: vi.fn(() => ({
     streamingState: 'Idle',
     submitQuery: vi.fn(),
     initError: null,
