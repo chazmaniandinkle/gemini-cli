@@ -237,6 +237,7 @@ describe('App UI', () => {
       <App
         config={mockConfig as unknown as ServerConfig}
         settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
       />,
     );
     currentUnmount = unmount;
@@ -253,6 +254,7 @@ describe('App UI', () => {
       <App
         config={mockConfig as unknown as ServerConfig}
         settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
       />,
     );
     currentUnmount = unmount;
@@ -273,6 +275,7 @@ describe('App UI', () => {
       <App
         config={mockConfig as unknown as ServerConfig}
         settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
       />,
     );
     currentUnmount = unmount;
@@ -293,6 +296,7 @@ describe('App UI', () => {
       <App
         config={mockConfig as unknown as ServerConfig}
         settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
       />,
     );
     currentUnmount = unmount;
@@ -313,6 +317,7 @@ describe('App UI', () => {
       <App
         config={mockConfig as unknown as ServerConfig}
         settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
       />,
     );
     currentUnmount = unmount;
@@ -333,6 +338,7 @@ describe('App UI', () => {
       <App
         config={mockConfig as unknown as ServerConfig}
         settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
       />,
     );
     currentUnmount = unmount;
@@ -352,6 +358,7 @@ describe('App UI', () => {
       <App
         config={mockConfig as unknown as ServerConfig}
         settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
       />,
     );
     currentUnmount = unmount;
@@ -372,6 +379,7 @@ describe('App UI', () => {
       <App
         config={mockConfig as unknown as ServerConfig}
         settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
       />,
     );
     currentUnmount = unmount;
@@ -397,12 +405,13 @@ describe('App UI', () => {
     it('should display theme dialog if NO_COLOR is not set', async () => {
       delete process.env.NO_COLOR;
 
-      const { lastFrame, unmount } = render(
-        <App
-          config={mockConfig as unknown as ServerConfig}
-          settings={mockSettings}
-        />,
-      );
+    const { lastFrame, unmount } = render(
+      <App
+        config={mockConfig as unknown as ServerConfig}
+        settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
+      />,
+    );
       currentUnmount = unmount;
 
       expect(lastFrame()).toContain('Select Theme');
@@ -411,12 +420,13 @@ describe('App UI', () => {
     it('should display a message if NO_COLOR is set', async () => {
       process.env.NO_COLOR = 'true';
 
-      const { lastFrame, unmount } = render(
-        <App
-          config={mockConfig as unknown as ServerConfig}
-          settings={mockSettings}
-        />,
-      );
+    const { lastFrame, unmount } = render(
+      <App
+        config={mockConfig as unknown as ServerConfig}
+        settings={mockSettings}
+        orchestrator={{} as any} // Mock orchestrator
+      />,
+    );
       currentUnmount = unmount;
 
       expect(lastFrame()).toContain(

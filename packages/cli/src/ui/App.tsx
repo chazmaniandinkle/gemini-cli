@@ -55,7 +55,7 @@ import {
   isEditorAvailable,
   EditorType,
 } from '@google/gemini-cli-core';
-import { Orchestrator } from '@google-gemini/core';
+import { Orchestrator } from '@google/gemini-cli-core';
 import { validateAuthMethod } from '../config/auth.js';
 import { useLogger } from './hooks/useLogger.js';
 import { StreamingContext } from './contexts/StreamingContext.js';

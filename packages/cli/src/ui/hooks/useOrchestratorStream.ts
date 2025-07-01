@@ -3,7 +3,7 @@ import {
   Orchestrator,
   OrchestratorRequest,
   getErrorMessage,
-} from '@google-gemini/core';
+} from '@google/gemini-cli-core';
 import { Config } from '@google/gemini-cli-core';
 import {
   StreamingState,

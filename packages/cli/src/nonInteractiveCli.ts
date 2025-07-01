@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Orchestrator, OrchestratorRequest } from '@google-gemini/core';
+import { Orchestrator, OrchestratorRequest } from '@google/gemini-cli-core';
 
 export async function runNonInteractive(
   orchestrator: Orchestrator,
