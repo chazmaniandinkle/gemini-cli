@@ -35,5 +35,11 @@ export const validateAuthMethod = (authMethod: string): string | null => {
     return null;
   }
 
+  if (authMethod === AuthType.USE_OLLAMA) {
+    // For Ollama, we just need to check if the server is reachable
+    // This is a basic validation - the actual connectivity check happens in the core
+    return null;
+  }
+
   return 'Invalid auth method selected.';
 };
